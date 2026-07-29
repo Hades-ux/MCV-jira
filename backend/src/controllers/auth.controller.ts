@@ -2,6 +2,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { LoginDto, RegistrationDto } from '../dto/requests/auth.dto.js';
 import { loginService, registrationService } from '../services/auth.service.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import { cookiesOption } from '../utils/cookiesOption.js';
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const Dto: RegistrationDto = req.body;
@@ -16,7 +17,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
     createdAt: user.createdAt.toISOString(),
   };
 
-  res.status(201).json(new ApiResponse('User created successfuly', response));
+  return res.status(201).json(new ApiResponse('User created successfuly', response));
 });
 
 export const loginUserController = asyncHandler(async (req, res) => {
@@ -32,5 +33,14 @@ export const loginUserController = asyncHandler(async (req, res) => {
     createdAt: user.createdAt.toISOString(),
   };
 
-  return res.status(200).json(new ApiResponse('Login successful', response));
+  const accessToken = (user as any).generateAccessToken();
+  const refreshToken = (user as any).generateRefreshToken();
+
+  await (user as any).saveRefreshToken(refreshToken);
+
+  return res
+    .cookie('accessToken', accessToken, cookiesOption)
+    .cookie('refreshToken', refreshToken, cookiesOption)
+    .status(200)
+    .json(new ApiResponse('Login successful', response));
 });

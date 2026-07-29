@@ -63,9 +63,9 @@ userSchema.methods.generateAccessToken = function (): string {
       _id: this._id,
       email: this.email,
     },
-    process.env.AT!,
+    process.env.ACCESS_TOKEN_SECRET!,
     {
-      expiresIn: process.env.AT_EXPIRATION as SignOptions['expiresIn'],
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY as SignOptions['expiresIn'],
     },
   );
 };
@@ -75,9 +75,9 @@ userSchema.methods.generateRefreshToken = function (): string {
     {
       _id: this._id,
     },
-    process.env.RT!,
+    process.env.REFRESH_TOKEN_SECRET!,
     {
-      expiresIn: process.env.RT_EXPIRATION as SignOptions['expiresIn'],
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY as SignOptions['expiresIn'],
     },
   );
 };
