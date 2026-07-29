@@ -1,8 +1,8 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import { LoginDto, RegistrationDto } from '../dto/requests/auth.dto.js';
-import { loginService, registrationService } from '../services/auth.service.js';
+import { loginService, logOutService, registrationService } from '../services/auth.service.js';
 import ApiResponse from '../utils/ApiResponse.js';
-import { cookiesOption } from '../utils/cookiesOption.js';
+import { accessTokenCookieOption,refreshTokenCookieOption } from '../utils/cookiesOption.js';
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const Dto: RegistrationDto = req.body;
@@ -39,8 +39,19 @@ export const loginUserController = asyncHandler(async (req, res) => {
   await (user as any).saveRefreshToken(refreshToken);
 
   return res
-    .cookie('accessToken', accessToken, cookiesOption)
-    .cookie('refreshToken', refreshToken, cookiesOption)
+    .cookie('accessToken', accessToken, accessTokenCookieOption)
+    .cookie('refreshToken', refreshToken, refreshTokenCookieOption)
     .status(200)
     .json(new ApiResponse('Login successful', response));
+});
+
+export const logoutController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+
+  await logOutService(userId);
+
+  return res
+    .clearCookie('accessToken', accessTokenCookieOption)
+    .clearCookie('refreshToken', refreshTokenCookieOption)
+    .json( new ApiResponse("Log out successfully"))
 });

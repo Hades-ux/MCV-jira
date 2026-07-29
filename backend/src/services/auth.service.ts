@@ -1,3 +1,4 @@
+import { promises } from 'dns';
 import type { LoginDto, RegistrationDto } from '../dto/requests/auth.dto.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
@@ -26,11 +27,18 @@ export const loginService = async (dto: LoginDto) => {
 
   const user = await User.findOne({ email: normalizeEmail }).select('+password');
 
-  if (!user) throw new ApiError(401, "Invalid credentials");
+  if (!user) throw new ApiError(401, 'Invalid credentials');
 
   const isValid = await (user as any).isPasswordCorrect(dto.password);
 
-  if (!isValid) throw new ApiError(401, "Invalid credentials");
+  if (!isValid) throw new ApiError(401, 'Invalid credentials');
 
   return user;
+};
+
+export const logOutService = async (_id: string): Promise<void> => {
+  if (!_id) throw new ApiError(401, 'Unauthorized');
+
+  const user = await User.findByIdAndUpdate({ _id }, { $unset: { refreshToken: null } });
+  if (!user) throw new ApiError(404, 'User not found');
 };
