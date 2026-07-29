@@ -3,6 +3,7 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
+app.use(express.urlencoded({extended:true}))
 app.use(express.json());
 
 app.get('/test', (req:Request, res: Response) => {

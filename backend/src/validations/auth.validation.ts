@@ -33,3 +33,21 @@ export const registrationValidation = [
     .isLength({ min: 8 })
     .withMessage('Password must be minimum 8 characters'),
 ];
+
+export const loginValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Field cannot be empty')
+    .trim()
+    .normalizeEmail()
+    .bail()
+    .isEmail()
+    .withMessage('Enter valid email'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('Field cannot be empty')
+    .bail()
+    .isLength({ min: 8 })
+    .withMessage('Password must be minimum 8 characters'),
+];

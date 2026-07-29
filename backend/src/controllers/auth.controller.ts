@@ -1,6 +1,7 @@
 import asyncHandler from '../utils/asyncHandler.js';
-import { RegistrationDto } from '../dto/requests/auth.dto.js';
-import { registrationService } from '../services/auth.service.js';
+import { LoginDto, RegistrationDto } from '../dto/requests/auth.dto.js';
+import { loginService, registrationService } from '../services/auth.service.js';
+import ApiResponse from '../utils/ApiResponse.js';
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const Dto: RegistrationDto = req.body;
@@ -9,11 +10,27 @@ export const registerUserController = asyncHandler(async (req, res) => {
 
   const response = {
     _id: user._id,
+    firstName: user.firstName,
+    lastname: user.lastName,
+    email: user.email,
+    createdAt: user.createdAt.toISOString(),
+  };
+
+  res.status(201).json(new ApiResponse('User created successfuly', response));
+});
+
+export const loginUserController = asyncHandler(async (req, res) => {
+  const dto: LoginDto = req.body;
+
+  const user = await loginService(dto);
+
+  const response = {
+    _id: user._id,
     fullName: user.firstName,
     lastname: user.lastName,
     email: user.email,
-    createAt: user.createdAt.toISOString(),
+    createdAt: user.createdAt.toISOString(),
   };
 
-  res.status(200).json({ response });
+  return res.status(200).json(new ApiResponse('Login successful', response));
 });
