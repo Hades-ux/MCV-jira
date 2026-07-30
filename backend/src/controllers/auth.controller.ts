@@ -19,6 +19,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    avatar: user.avatar?.url,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -35,6 +36,7 @@ export const loginUserController = asyncHandler(async (req, res) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    avatar: user.avatar?.url,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -70,6 +72,7 @@ export const refreshTokenRotationController = asyncHandler(async (req, res) => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    avatar: user.avatar?.url,
     createdAt: user.createdAt.toISOString(),
   };
 
