@@ -34,6 +34,17 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    avatar: {
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
+    },
+
     refreshToken: {
       type: String,
       default: null,
@@ -87,7 +98,7 @@ userSchema.methods.saveRefreshToken = async function (refreshToken: string): Pro
 
   this.refreshToken = hashedToken;
 
-  await this.save({ validateBeforeSave: false})
+  await this.save({ validateBeforeSave: false });
 };
 
 export default mongoose.model('User', userSchema);

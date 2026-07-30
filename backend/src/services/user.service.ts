@@ -1,6 +1,8 @@
-import { changePasswordDto } from "../dto/requests/user.dto.js";
+import app from '../app.js';
+import { changePasswordDto } from '../dto/requests/user.dto.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
+import { fileUpload, deleteUpload } from '../utils/cloudinery.js';
 
 export const getOwnerProfileService = async (userId: string) => {
   if (!userId) throw new ApiError(401, 'Unauthorized');
@@ -11,9 +13,12 @@ export const getOwnerProfileService = async (userId: string) => {
   return user;
 };
 
-export const changePasswordService = async (dto: changePasswordDto, userId: string) => {
-  if (!dto.newPassword) throw new ApiError(404, ' missing new password');
-  if (!dto.oldPassword) throw new ApiError(404, ' missing old password');
+export const changePasswordService = async (
+  dto: changePasswordDto,
+  userId: string,
+): Promise<void> => {
+  if (!dto.newPassword) throw new ApiError(400, ' missing new password');
+  if (!dto.oldPassword) throw new ApiError(400, ' missing old password');
 
   const currentUser = await User.findById(userId).select('+password');
 
@@ -33,6 +38,40 @@ export const changePasswordService = async (dto: changePasswordDto, userId: stri
 
   currentUser.password = dto.newPassword;
   await currentUser.save();
+};
 
-  return true;
+export const uploadAvatarService = async (path: string, userId: string) => {
+  if (!path) throw new ApiError(400, 'File not found');
+  if (!userId) throw new ApiError(401, 'Unauthorized');
+
+  const currentUser = await User.findById(userId);
+
+  if (!currentUser) throw new ApiError(404, 'User not found');
+  if (!currentUser.avatar) throw new ApiError(500, 'Avatar object is missing');
+
+  const oldPublicId = currentUser.avatar.publicId;
+
+  let avatar;
+
+  try {
+    avatar = await (fileUpload as any)(path);
+    if (!avatar) throw new ApiError(503, 'upload failed');
+  } catch (error) {
+    console.error(error);
+    throw new ApiError(503, 'Aavtar upload failed');
+  }
+
+  if (oldPublicId) {
+    try {
+      await deleteUpload(oldPublicId);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  currentUser.avatar.url = avatar.url;
+  currentUser.avatar.publicId = avatar.public_id;
+  await currentUser.save();
+
+  return avatar;
 };
