@@ -10,8 +10,8 @@ router.post('/register', registrationValidation, validationMiddleware, registerU
 
 router.post('/login', loginValidation, validationMiddleware, loginUserController);
 
-router.post("/logout", jwtMiddleware,logoutController)
+router.post('/logout', jwtMiddleware,logoutController)
 
-router.post("/refresh-token", refreshTokenRotationController)
+router.post('/refresh-token', refreshTokenRotationController)
 
 export default router;

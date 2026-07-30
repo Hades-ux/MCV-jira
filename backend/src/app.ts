@@ -16,8 +16,10 @@ app.get('/test', (req: Request, res: Response) => {
 });
 
 import authRouter from './routes/auth.route.js';
+import userRouter from './routes/user.route.js'
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/user', userRouter);
 
 app.use(errorMiddleware);
 
