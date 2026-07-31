@@ -1,4 +1,3 @@
-import app from '../app.js';
 import { changePasswordDto } from '../dto/requests/user.dto.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';

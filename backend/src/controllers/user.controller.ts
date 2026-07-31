@@ -11,10 +11,11 @@ export const getOwnerProfileController = asyncHandler(async (req, res) => {
   const user = await getOwnerProfileService(userId);
 
   const response = {
-    _id: user._id,
+    _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
+    avatar: user.avatar?.url,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -47,7 +48,7 @@ export const uploadAvatarController = asyncHandler(async (req, res) => {
 
   const response={
     url : profile.url,
-    public_id: profile.public_id
+    public_id: profile.publicId
   }
 
   return res.status(200).json(new ApiResponse("Avatar upload successfully", response))

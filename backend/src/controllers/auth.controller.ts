@@ -15,7 +15,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
   const user = await registrationService(dto);
 
   const response = {
-    _id: user._id,
+    _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -32,7 +32,7 @@ export const loginUserController = asyncHandler(async (req, res) => {
   const user = await loginService(dto);
 
   const response = {
-    _id: user._id,
+    _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
@@ -67,8 +67,8 @@ export const refreshTokenRotationController = asyncHandler(async (req, res) => {
   const token = req.cookies.refreshToken;
   const user = await refreshTokenRotationService(token);
 
-  const response = {
-    _id: user._id,
+ const response = {
+    _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
