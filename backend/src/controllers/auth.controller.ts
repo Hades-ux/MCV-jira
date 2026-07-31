@@ -8,18 +8,19 @@ import {
 } from '../services/auth.service.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import { accessTokenCookieOption, refreshTokenCookieOption } from '../utils/cookiesOption.js';
+import { UserResponseDto } from '../dto/response/user.dto.js';
 
 export const registerUserController = asyncHandler(async (req, res) => {
   const dto: RegistrationDto = req.body;
 
   const user = await registrationService(dto);
 
-  const response = {
+  const response: UserResponseDto = {
     _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    avatar: user.avatar?.url,
+    avatar: user.avatar,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -31,12 +32,12 @@ export const loginUserController = asyncHandler(async (req, res) => {
 
   const user = await loginService(dto);
 
-  const response = {
+  const response: UserResponseDto = {
     _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    avatar: user.avatar?.url,
+    avatar: user.avatar,
     createdAt: user.createdAt.toISOString(),
   };
 
@@ -67,12 +68,12 @@ export const refreshTokenRotationController = asyncHandler(async (req, res) => {
   const token = req.cookies.refreshToken;
   const user = await refreshTokenRotationService(token);
 
- const response = {
+  const response: UserResponseDto = {
     _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.email,
-    avatar: user.avatar?.url,
+    avatar: user.avatar,
     createdAt: user.createdAt.toISOString(),
   };
 
