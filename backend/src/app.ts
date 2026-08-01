@@ -1,8 +1,17 @@
 import express, { Request, Response } from 'express';
 import { errorMiddleware } from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
-
+import cors from "cors";
 const app = express();
+
+
+const origin = process.env.CLIENT
+app.use(
+  cors({
+    origin: origin,
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));

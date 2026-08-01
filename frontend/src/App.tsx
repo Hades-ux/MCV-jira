@@ -1,11 +1,11 @@
-import './App.css'
+import Register from "./pages/RegisterPage"
 
 function App() {
 
   return (
-    <>
-    <h1>Hellow dev</h1>
-    </>
+    <div>
+      <Register />
+    </div>
   )
 }
 
