@@ -1,13 +1,16 @@
-import LoginPage from "./pages/LoginPage"
-// import Register from "./pages/RegisterPage"
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+
+import {  Routes, Route, } from "react-router";
 
 function App() {
-
   return (
-    <div>
-      <LoginPage/>
-    </div>
-  )
+    <Routes>
+      <Route path="/" element={<LoginPage/>}/>
+      <Route path="/register" element={<RegisterPage/>}/>
+    </Routes>
+
+  );
 }
 
-export default App
+export default App;
