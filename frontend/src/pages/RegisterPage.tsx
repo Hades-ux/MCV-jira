@@ -1,8 +1,42 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 
-interface FormData {
+const registerSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .min(3, "First name must be at least 3 characters")
+    .regex(/^[A-Za-z]+$/, "Only alphabets are allowed"),
+
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .min(3, "Last name must be at least 3 characters")
+    .regex(/^[A-Za-z]+$/, "Only alphabets are allowed"),
+
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .pipe(z.email("Please enter a valid email address")),
+
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+    ),
+  termAndCondition: z
+    .boolean()
+    .refine((val) => val === true, "Please accept the terms and conditions"),
+});
+
+interface RegisterInput {
   firstName: string;
   lastName: string;
   email: string;
@@ -11,21 +45,25 @@ interface FormData {
 }
 
 const RegisterPage = () => {
+
+  const [loading, setLoading] = useState(false)
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const onSubmit: SubmitHandler<RegisterInput> = async (data) => {
     try {
-      
-      await api.post("/auth/register",(data))
+      setLoading(true)
+      await api.post("/auth/register", data);
       toast.success("Registration successful!");
-      
     } catch (error) {
       toast.error("Something went wrong!");
-      console.error(error)
+      console.error(error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -48,21 +86,13 @@ const RegisterPage = () => {
                   id="firstName"
                   type="text"
                   autoComplete="given-name"
-                  {...register("firstName", {
-                    required: "First name is required",
-                    minLength: {
-                      value: 3,
-                      message: "First name must be at least 3 characters",
-                    },
-                    pattern: {
-                      value: /^[A-Za-z]+$/,
-                      message: "Only alphabets are allowed",
-                    },
-                  })}
                   className="input input-bordered w-full"
+                  {...register("firstName")}
                 />
                 {errors.firstName && (
-                  <p role="alert" className="text-error text-sm mt-1">{errors.firstName.message}</p>
+                  <p role="alert" className="text-error text-sm mt-1">
+                    {errors.firstName.message}
+                  </p>
                 )}
               </div>
 
@@ -75,25 +105,16 @@ const RegisterPage = () => {
                   id="lastName"
                   type="text"
                   autoComplete="family-name"
-                  {...register("lastName", {
-                    required: "Last name is required",
-                    minLength: {
-                      value: 3,
-                      message: "Last name must be at least 3 charaters",
-                    },
-                    pattern: {
-                      value: /^[A-Za-z]+$/,
-                      message: "Only alphabets are allowed",
-                    },
-                  })}
                   className="input input-bordered w-full"
+                  {...register("lastName")}
                 />
                 {errors.lastName && (
-                  <p role="alert" className="text-error text-sm mt-1">{errors.lastName.message}</p>
+                  <p role="alert" className="text-error text-sm mt-1">
+                    {errors.lastName.message}
+                  </p>
                 )}
               </div>
             </div>
-
             {/* email */}
             <div>
               <label htmlFor="email" className="label">
@@ -104,17 +125,14 @@ const RegisterPage = () => {
                 type="email"
                 autoComplete="email"
                 className="input input-bordered w-full"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Please enter a valid email address",
-                  },
-                })}
+                {...register("email")}
               />
-              {errors.email && <p className="text-error text-sm mt-1">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-error text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
-
             {/* password */}
             <div>
               <label htmlFor="password" className="label">
@@ -124,25 +142,17 @@ const RegisterPage = () => {
                 id="password"
                 type="password"
                 autoComplete="new-password"
-                {...register("password", {
-                  required: "Password is  required",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters",
-                  },
-                  pattern: {
-                    value:
-                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                    message:
-                      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
-                  },
-                })}
+                {...register("password")}
                 className="input input-bordered w-full"
               />
-              {errors.password && <p className="text-error text-sm mt-1">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-error text-sm mt-1">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
-            {/* term and condition
+            {/* term and condition */}
             <div className="flex items-center justify-between">
               <label
                 htmlFor="termAndCondition"
@@ -152,22 +162,20 @@ const RegisterPage = () => {
                   id="termAndCondition"
                   type="checkbox"
                   className="checkbox checkbox-sm"
-                  {...register("termAndCondition", {
-                    required: "Please accept the terms and conditions",
-                  })}
+                  {...register("termAndCondition")}
                 />
                 <span>Term and condition</span>
               </label>
             </div>
             {errors.termAndCondition && (
-                <p className="text-error text-sm mt-1">{errors.termAndCondition?.message}</p>
-              )} */}
-
+              <p className="text-error text-sm mt-1">
+                {errors.termAndCondition?.message}
+              </p>
+            )}
             {/* submit button */}
-            <button 
-            type="submit"
-            className="btn btn-primary w-full">
-              Register</button>
+            <button type="submit" className="btn btn-primary w-full disabled:pointer-events-auto disabled:cursor-not-allowed" disabled={loading}>
+              Register
+            </button>
           </form>
         </div>
       </div>
