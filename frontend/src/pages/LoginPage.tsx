@@ -28,8 +28,8 @@ const LoginPage = () => {
     login(data, {
       onSuccess: () => {
         setTimeout(() => {
-          navigate("/profile");
-        }, 1000);
+          navigate("/me");
+        }, 500);
       },
     });
   };
