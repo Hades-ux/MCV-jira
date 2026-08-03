@@ -1,9 +1,8 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import api from "../lib/axios";
-import toast from "react-hot-toast";
+import { useLogin } from "../hook/auth/useLogin";
+import { useNavigate } from "react-router";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email is required").pipe(z.email()),
@@ -16,7 +15,8 @@ interface LoginInput {
 }
 
 const LoginPage = () => {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+  const { mutate: login, isPending } = useLogin();
 
   const {
     register,
@@ -24,18 +24,16 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
-  const onSubmit: SubmitHandler<LoginInput> = async (data) => {
-    try {
-      setLoading(true);
-      await api.post("/auth/login", data);
-      toast.success("Login successfully");
-    } catch (error) {
-      toast.error("Login failed");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const onSubmit: SubmitHandler<LoginInput> = (data) => {
+    login(data, {
+      onSuccess: () => {
+        setTimeout(() => {
+          navigate("/profile");
+        }, 1000);
+      },
+    });
   };
+
   return (
     <div className=" min-h-screen bg-base-200 flex items-center justify-center">
       <div className="card w-full max-w-sm bg-base-100 shadow-xl">
@@ -87,9 +85,9 @@ const LoginPage = () => {
 
             <button
               className="btn btn-primary w-full disabled:pointer-events-auto disabled:cursor-not-allowed"
-              disabled={loading}
+              disabled={isPending}
             >
-             {loading ? "Logging in..." : "Login"}
+              {isPending ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>

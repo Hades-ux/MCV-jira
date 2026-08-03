@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 const registerSchema = z.object({
   firstName: z
@@ -45,8 +46,8 @@ interface RegisterInput {
 }
 
 const RegisterPage = () => {
-
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -56,13 +57,14 @@ const RegisterPage = () => {
 
   const onSubmit: SubmitHandler<RegisterInput> = async (data) => {
     try {
-      setLoading(true)
+      setLoading(true);
       await api.post("/auth/register", data);
       toast.success("Registration successful!");
+      navigate("/")
     } catch (error) {
       toast.error("Something went wrong!");
       console.error(error);
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -173,7 +175,11 @@ const RegisterPage = () => {
               </p>
             )}
             {/* submit button */}
-            <button type="submit" className="btn btn-primary w-full disabled:pointer-events-auto disabled:cursor-not-allowed" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary w-full disabled:pointer-events-auto disabled:cursor-not-allowed"
+              disabled={loading}
+            >
               Register
             </button>
           </form>
