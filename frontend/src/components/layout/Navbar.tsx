@@ -5,9 +5,9 @@ const Navbar = () => {
   const { isOpen } = useSidebar();
   return (
     <aside
-      className={`overflow-hidden flex flex-col gap-2
-              transition-all duration-300 ease-in-out
-              ${isOpen ? "w-0" : "w-45 border-r"}`}
+      className={` relative overflow-hidden   flex flex-col gap-2 
+              transition-all duration-300 ease-in-out rounded-md
+              ${isOpen ? "w-0" : "w-45 bg-[#1C2128] border border-[#30363D] my-1 ml-1"}`}
     >
       <button className=" btn btn-ghost">
         <CircleUser size={20} /> For you
