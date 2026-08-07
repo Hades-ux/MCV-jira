@@ -9,9 +9,10 @@ v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const fileUpload = async (filePath: string) => {
+export const fileUpload = async (filePath: string, folder: string = "jira-clone") => {
   try {
     const response = await v2.uploader.upload(filePath, {
+      folder,
       resource_type: "auto",
     });
     return response;

@@ -1,7 +1,7 @@
 import { changePasswordDto } from '../dto/requests/user.dto.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
-import { fileUpload, deleteUpload } from '../utils/cloudinery.js';
+import { fileUpload, deleteUpload } from '../utils/cloudinary.js';
 
 export const getOwnerProfileService = async (userId: string) => {
   if (!userId) throw new ApiError(401, 'Unauthorized');

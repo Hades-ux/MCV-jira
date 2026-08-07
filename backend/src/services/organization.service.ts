@@ -1,0 +1,52 @@
+import { OrganizationInputDto } from '../dto/requests/organization.dto.js';
+import Organization from '../models/organization.model.js';
+import User from '../models/user.model.js';
+import ApiError from '../utils/ApiError.js';
+import { deleteUpload, fileUpload } from '../utils/cloudinary.js';
+
+export const createOrganizationService = async (
+  dto: OrganizationInputDto,
+  userId: string,
+  path: string,
+) => {
+  if (!dto) throw new ApiError(400, 'Request body is missing');
+  if (!userId) throw new ApiError(401, 'Unauthorized');
+  if (!path) throw new ApiError(400, 'Organization logo is required');
+
+  const currentUser = await User.exists({ _id: userId });
+  if (!currentUser) throw new ApiError(404, 'User not found');
+
+  const isExist = await Organization.findOne({ name: dto.name }).select('_id');
+  if (isExist) throw new ApiError(409, 'Organization already exists');
+
+  // const slugExists = await Organization.findOne({ slug: dto.slug }).select('_id');
+
+  // if (slugExists) throw new ApiError(409, 'Slug already exists');
+
+  let logo;
+  try {
+    logo = await fileUpload(path);
+
+    const data = {
+      name: dto.name,
+      // slug: dto.slug,
+      owner: userId,
+      logo: {
+        url: logo.secure_url,
+        publicId: logo.public_id,
+      },
+    };
+
+    const organization = await Organization.create(data);
+    return organization;
+  } catch (error: any) {
+    if (logo?.public_id) {
+      await deleteUpload(logo.public_id);
+    }
+
+    if (error.code === 11000) {
+      throw new ApiError(409, 'Organization already exists');
+    }
+    throw error;
+  }
+};
