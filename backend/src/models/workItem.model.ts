@@ -63,11 +63,11 @@ const workItemSchema = new mongoose.Schema(
       ref: 'Project',
       required: true,
     },
+
     status: {
       type: String,
       enum: Object.values(WorkItemStatus),
       default: WorkItemStatus.TODO,
-      required: true,
     },
 
     createdBy: {

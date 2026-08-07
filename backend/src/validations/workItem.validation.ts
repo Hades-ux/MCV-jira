@@ -2,10 +2,6 @@ import { body } from "express-validator";
 import { WorkItemType, PriorityType } from "../models/workItem.model.js";
 
 export const createWorkItemValidation = [
-  body("workID")
-    .trim()
-    .notEmpty()
-    .withMessage("Work ID is required"),
 
   body("title")
     .trim()
