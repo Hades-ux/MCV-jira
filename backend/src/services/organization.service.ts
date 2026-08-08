@@ -4,6 +4,7 @@ import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 import { deleteUpload, fileUpload } from '../utils/cloudinary.js';
 
+//create organiztion
 export const createOrganizationService = async (
   dto: OrganizationInputDto,
   userId: string,
@@ -50,3 +51,12 @@ export const createOrganizationService = async (
     throw error;
   }
 };
+
+// Get organization by ID
+export const getOrganizationService = async () => {};
+
+// Update organization
+export const updateOrganizationService = async () => {};
+
+// Soft delete organization
+export const softDeleteOrganizationService = async () => {};
