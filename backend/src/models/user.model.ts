@@ -35,18 +35,19 @@ const userSchema = new mongoose.Schema(
     },
 
     avatar: {
-  type: {
-    url: {
-      type: String,
-      default: "",
+      type: {
+        url: {
+          type: String,
+          default: '',
+        },
+        publicId: {
+          type: String,
+          default: '',
+        },
+      },
+      _id: false,
+      default: null,
     },
-    publicId: {
-      type: String,
-      default: "",
-    },
-  },
-  default: null,
-},
 
     refreshToken: {
       type: String,

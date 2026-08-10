@@ -16,6 +16,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static("public"))
 
 app.get('/test', (req: Request, res: Response) => {
   res.status(200).json({
@@ -25,10 +26,14 @@ app.get('/test', (req: Request, res: Response) => {
 });
 
 import authRouter from './routes/auth.route.js';
-import userRouter from './routes/user.route.js'
+import userRouter from './routes/user.route.js';
+import organizationRouter from './routes/organization.route.js'
+import organizationMemberRouter from "./routes/organizationMember.routes.js";
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', userRouter);
+app.use('/api/v1/organization', organizationRouter)
+app.use('/api/v1/organizationMember', organizationMemberRouter)
 
 app.use(errorMiddleware);
 

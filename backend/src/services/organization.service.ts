@@ -1,5 +1,6 @@
 import { OrganizationInputDto } from '../dto/requests/organization.dto.js';
 import Organization from '../models/organization.model.js';
+import OrganizationMember, { RoleTypes } from '../models/organizationMember.model.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 import { deleteUpload, fileUpload } from '../utils/cloudinary.js';
@@ -14,7 +15,7 @@ export const createOrganizationService = async (
   if (!userId) throw new ApiError(401, 'Unauthorized');
   if (!path) throw new ApiError(400, 'Organization logo is required');
 
-  const currentUser = await User.exists({ _id: userId });
+  const currentUser = await User.findById(userId).select('_id email');
   if (!currentUser) throw new ApiError(404, 'User not found');
 
   const isExist = await Organization.findOne({ name: dto.name }).select('_id');
@@ -39,6 +40,22 @@ export const createOrganizationService = async (
     };
 
     const organization = await Organization.create(data);
+
+    const orgMemberData: {
+      organizationId: typeof organization._id;
+      userId: typeof currentUser._id;
+      role: RoleTypes;
+      invitedBy: typeof currentUser._id
+    } = {
+      organizationId: organization._id,
+      userId: currentUser._id,
+      invitedBy:currentUser._id,
+      role: 'OWNER' as RoleTypes,
+    };
+    const orgMember = await OrganizationMember.create(orgMemberData);
+
+    if(!orgMember) throw new ApiError(403,"Bad request")
+
     return organization;
   } catch (error: any) {
     if (logo?.public_id) {

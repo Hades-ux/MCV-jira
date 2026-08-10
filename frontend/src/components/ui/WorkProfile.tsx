@@ -1,3 +1,5 @@
+import { useCurrentUser } from "../../hook/auth/useCurrentUser";
+
 interface UserData {
   avatar: {
     url: string;
@@ -12,21 +14,26 @@ interface UserData {
   officeLocation: string;
 }
 
-const user: UserData = {
-  avatar: {
-    url: "/test/BuriBuriZaemon.jpg",
-  },
 
-  firstName: "hades",
-  lastName: "demo",
-  jobTitle: "Jr. Software Engg",
-  department: "Backend",
-  workEmail: "Hades@compney.com",
-  officeLocation: "Delhi, India",
-  team: "To be alloted",
-};
+
+// const user: UserData = {
+//   avatar: {
+//     url: "/test/BuriBuriZaemon.jpg",
+//   },
+
+//   firstName: "hades",
+//   lastName: "demo",
+//   jobTitle: "Jr. Software Engg",
+//   department: "Backend",
+//   workEmail: "Hades@compney.com",
+//   officeLocation: "Delhi, India",
+//   team: "To be alloted",
+// };
 
 const WorkProfile = () => {
+
+  const user = useCurrentUser() as UserData;
+
   return (
     <div className="relative w-80 overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
 
@@ -37,17 +44,17 @@ const WorkProfile = () => {
       <div className="relative flex flex-col items-center">
 
         <img
-          src={user.avatar.url}
+          src={user?.avatar?.url}
           alt="avatar"
           className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-lg"
         />
 
         <h1 className="mt-5 text-3xl font-bold">
-          {`${user.firstName} ${user.lastName}`.toUpperCase()}
+          {`${user?.firstName} ${user?.lastName}`.toUpperCase()}
         </h1>
 
         <p className="text-lg text-blue-100">
-          {user.jobTitle}
+          {user?.jobTitle}
         </p>
 
         <div className="mt-6 grid w-full grid-cols-2 gap-3">
@@ -58,7 +65,7 @@ const WorkProfile = () => {
             </p>
 
             <p className="font-semibold">
-              {user.department}
+              {user?.department}
             </p>
           </div>
 
@@ -78,7 +85,7 @@ const WorkProfile = () => {
             </p>
 
             <p className="truncate font-semibold">
-              {user.workEmail}
+              {user?.workEmail}
             </p>
           </div>
 
@@ -88,7 +95,7 @@ const WorkProfile = () => {
             </p>
 
             <p className="font-semibold">
-              {user.officeLocation}
+              {user?.officeLocation}
             </p>
           </div>
 

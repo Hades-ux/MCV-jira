@@ -17,7 +17,7 @@ const organizationMemberSchema = new mongoose.Schema({
 
     organizationId: {
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Organiztion',
+        ref:'Organization',
         required:true,
     },
 
@@ -32,7 +32,11 @@ const organizationMemberSchema = new mongoose.Schema({
         default: RoleTypes.developer
     },
 
-    invitedBy:{}
+    invitedBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'User',
+        default: null,
+    }
 
 }, { timestamps: true });
 
