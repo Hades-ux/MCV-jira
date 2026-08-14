@@ -1,5 +1,6 @@
+import { Types } from "mongoose";
 import { organizationMemberInputDto } from '../dto/requests/organizationMember.dto.js';
-import organizationMember from '../models/organizationMember.model.js';
+import organizationMember, { RoleTypes } from '../models/organizationMember.model.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 
@@ -7,7 +8,7 @@ import ApiError from '../utils/ApiError.js';
 export const addOrganiztionMemberService = async (
   dto: organizationMemberInputDto,
   userId: string,
-  organizationId: string,
+  orgId: Types.ObjectId
 ) => {
   //checking login user is authorized
   const currentUser = await User.exists({ _id: userId });
@@ -23,8 +24,8 @@ export const addOrganiztionMemberService = async (
 
   const memberData = {
     userId: isExist._id,
-    organizationId: organizationId,
-    role: dto.role,
+    organizationId: orgId,
+    role: dto.role as RoleTypes,
     invitedBy: userId,
   };
 

@@ -14,8 +14,7 @@ export const addOrganiztionMemberController = asyncHandler(async (req, res) => {
   const isExist = await OrganizationMember.findOne({userId, isDeleted:false}).populate("organizationId")
   if (!isExist) throw new ApiError(401, 'Unauthorized org');
 
-  const orgId = isExist.organizationId
-  console.log("orgId: ", orgId)
+  const orgId = isExist.organizationId._id
 
   const response = await addOrganiztionMemberService(dto, userId, orgId);
 

@@ -29,7 +29,7 @@ const organizationMemberSchema = new mongoose.Schema({
     role:{
         type: String,
         enum: Object.values(RoleTypes),
-        default: RoleTypes.developer
+        default: RoleTypes.viewer
     },
 
     invitedBy:{
