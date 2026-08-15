@@ -4,6 +4,7 @@ export interface UserResponseDto {
   lastName: string;
   email: string;
   createdAt: string;
+  organizationId: string;
   avatar?: {
     url: string;
     publicId: string;

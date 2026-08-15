@@ -15,7 +15,7 @@ export const registerUserController = asyncHandler(async (req, res) => {
 
   const user = await registrationService(dto);
 
-  const response: UserResponseDto = {
+  const response = {
     _id: user._id.toString(),
     firstName: user.firstName,
     lastName: user.lastName,
@@ -30,21 +30,22 @@ export const registerUserController = asyncHandler(async (req, res) => {
 export const loginUserController = asyncHandler(async (req, res) => {
   const dto: LoginDto = req.body;
 
-  const user = await loginService(dto);
+  const data = await loginService(dto);
 
   const response: UserResponseDto = {
-    _id: user._id.toString(),
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    avatar: user.avatar,
-    createdAt: user.createdAt.toISOString(),
+    _id: data.user._id.toString(),
+    firstName: data.user.firstName,
+    lastName: data.user.lastName,
+    email: data.user.email,
+    avatar: data.user.avatar,
+    createdAt: data.user.createdAt.toISOString(),
+    organizationId: data.orgId.toString(),
   };
 
-  const accessToken = (user as any).generateAccessToken();
-  const refreshToken = (user as any).generateRefreshToken();
+  const accessToken = (data.user as any).generateAccessToken();
+  const refreshToken = (data.user as any).generateRefreshToken();
 
-  await (user as any).saveRefreshToken(refreshToken);
+  await (data.user as any).saveRefreshToken(refreshToken);
 
   return res
     .cookie('accessToken', accessToken, accessTokenCookieOption)
@@ -66,21 +67,22 @@ export const logoutController = asyncHandler(async (req, res) => {
 
 export const refreshTokenRotationController = asyncHandler(async (req, res) => {
   const token = req.cookies.refreshToken;
-  const user = await refreshTokenRotationService(token);
+  const data = await refreshTokenRotationService(token);
 
   const response: UserResponseDto = {
-    _id: user._id.toString(),
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    avatar: user.avatar,
-    createdAt: user.createdAt.toISOString(),
+    _id: data.user._id.toString(),
+    firstName: data.user.firstName,
+    lastName: data.user.lastName,
+    email: data.user.email,
+    avatar: data.user.avatar,
+    createdAt: data.user.createdAt.toISOString(),
+    organizationId: data.orgId.toString(),
   };
 
-  const accessToken = (user as any).generateAccessToken();
-  const refreshToken = (user as any).generateRefreshToken();
+  const accessToken = (data.user as any).generateAccessToken();
+  const refreshToken = (data.user as any).generateRefreshToken();
 
-  await (user as any).saveRefreshToken(refreshToken);
+  await (data.user as any).saveRefreshToken(refreshToken);
 
   return res
     .cookie('accessToken', accessToken, accessTokenCookieOption)

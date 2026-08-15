@@ -3,6 +3,7 @@ import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import OrganizationMember from '../models/organizationMember.model.js';
 
 export const registrationService = async (dto: RegistrationDto) => {
   const normalizeEmail = dto.email.trim().toLowerCase();
@@ -34,7 +35,13 @@ export const loginService = async (dto: LoginDto) => {
 
   if (!isValid) throw new ApiError(401, 'Invalid credentials');
 
-  return user;
+  const isMember = await OrganizationMember.findOne({ userId: user._id, isDeleted: false });
+
+  if (!isMember) throw new ApiError(400, 'User do not belong to any organization');
+
+  const orgId = isMember.organizationId;
+
+  return { user, orgId };
 };
 
 export const logOutService = async (_id: string): Promise<void> => {
@@ -44,20 +51,27 @@ export const logOutService = async (_id: string): Promise<void> => {
   if (!user) throw new ApiError(404, 'User not found');
 };
 
-export const refreshTokenRotationService = async (token: string)=> {
+export const refreshTokenRotationService = async (token: string) => {
   if (!token) throw new ApiError(401, 'Unauthorized');
 
   const payloadUser = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as jwt.JwtPayload;
 
   const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-  const user = await User.findOne({refreshToken:hashedToken});
+  const user = await User.findOne({ refreshToken: hashedToken });
 
   if (!user) throw new ApiError(401, 'Unauthorized');
 
-  if(user._id.toString() !== payloadUser._id.toString()) throw new ApiError(401, "Invalid refresh token")
+  if (user._id.toString() !== payloadUser._id.toString())
+    throw new ApiError(401, 'Invalid refresh token');
 
-    return user;
+  const isMember = await OrganizationMember.findOne({ userId: user._id, isDeleted: false });
+
+  if (!isMember) throw new ApiError(400, 'User do not belong to any organization');
+
+  const orgId = isMember.organizationId;
+
+  return { user, orgId };
 };
 
 // TODO: Replace 'any' with proper IUserDocument type.
