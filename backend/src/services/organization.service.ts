@@ -45,16 +45,16 @@ export const createOrganizationService = async (
       organizationId: typeof organization._id;
       userId: typeof currentUser._id;
       role: RoleTypes;
-      invitedBy: typeof currentUser._id
+      invitedBy: typeof currentUser._id;
     } = {
       organizationId: organization._id,
       userId: currentUser._id,
-      invitedBy:currentUser._id,
+      invitedBy: currentUser._id,
       role: 'OWNER' as RoleTypes,
     };
     const orgMember = await OrganizationMember.create(orgMemberData);
 
-    if(!orgMember) throw new ApiError(403,"Bad request")
+    if (!orgMember) throw new ApiError(403, 'Bad request');
 
     return organization;
   } catch (error: any) {
@@ -73,7 +73,64 @@ export const createOrganizationService = async (
 export const getOrganizationService = async () => {};
 
 // Update organization
-export const updateOrganizationService = async () => {};
+export const updateOrganizationService = async (
+  userId: string,
+  orgId: string,
+  name?: string,
+  path?: string,
+) => {
+  if (!userId) throw new ApiError(401, 'Unauthorized');
+  if (!orgId) throw new ApiError(400, 'Organization id not found');
+
+  const isMember = await OrganizationMember.findOne({
+    _id: userId,
+    organizationId: orgId,
+    isDeleted: false,
+  });
+  if (!isMember) throw new ApiError(401, 'Not member of any organiztion');
+
+  const role = isMember?.role as RoleTypes.owner;
+
+  if (role !== 'OWNER') throw new ApiError(400, 'Bad request');
+
+  const Org = await Organization.findOne({ _id: orgId, isDeleted: false });
+
+  if (!Org) throw new ApiError(400, 'Organization not found');
+
+  let oldLogo;
+  // for logo update
+  if (path) {
+    try {
+      const img = await fileUpload(path);
+      if (!img) throw new ApiError(400, 'logo file not found');
+
+      oldLogo = Org?.logo?.publicId;
+      if (Org?.logo) {
+        Org.logo.url = img.secure_url;
+        Org.logo.publicId = img.public_id;
+      }
+    } catch (error) {
+      console.error('error: ', error);
+      throw new ApiError(503, 'logo upload filed');
+    }
+  }
+
+  // for name Update
+  if (name?.trim()) Org.name = name.trim();
+
+  await Org.save({ validateBeforeSave: false });
+
+  if (oldLogo) {
+    try {
+      await deleteUpload(oldLogo);
+    } catch (error) {
+      console.error('Old logo deletion failed:', error);
+      // Queue this later
+    }
+  }
+
+  return Org;
+};
 
 // Soft delete organization
 export const softDeleteOrganizationService = async () => {};
