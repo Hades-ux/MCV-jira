@@ -20,10 +20,10 @@ export const addOrganiztionMemberService = async (
   if (!currentUser) throw new ApiError(401, 'User not found');
 
   // checking for current user authorization leve
-  const isMember = await OrganizationMember.findOne({userId:userId, isDeleted:false});
-  if(!isMember) throw new ApiError(400,"Unauthorized action");
+  const isMember = await OrganizationMember.findOne({ userId: userId, isDeleted: false });
+  if (!isMember) throw new ApiError(400, 'Unauthorized action');
 
-  if(isMember.role !== RoleTypes.owner) throw new ApiError(400,"Unauthorized leve is low");
+  if (isMember.role !== RoleTypes.owner) throw new ApiError(400, 'Unauthorized leve is low');
 
   // Check target user exists
   const isExist = await User.findOne({ email: normalizedEmail }).select('email');
@@ -82,17 +82,27 @@ export const deleteOrganizationMemberService = async (userId: string, email: str
 // Update member role
 export const updateOrganizationMemberRole = async () => {};
 // List organization members
-export const getOrganizationMemberService = async (userId: string) => {
+
+export const getOrganizationMemberService = async (userId: string, orgId: string) => {
   if (!userId) throw new ApiError(401, 'Unauthorized user');
 
-  const currentUser = await User.findOne({ _id: userId }).select('-password');
+  const currentUser = await OrganizationMember.findOne({ userId: userId }).select('-password');
   if (!currentUser) throw new ApiError(404, 'User not found');
 
-  const isMember = await OrganizationMember.findOne({ userId, isDeleted: false });
+  const isMember = await OrganizationMember.findOne({
+    userId,
+    isDeleted: false,
+    organizationId: orgId,
+  });
+  if (!isMember) throw new ApiError(401, 'Not a member');
 
-  const getAll = await OrganizationMember.find({
-    organizationId: isMember?.organizationId,
-  }).populate('userId');
+  if (isMember?.role === RoleTypes.owner) {
+    const getAll = await OrganizationMember.find({
+      organizationId: isMember?.organizationId,
+    }).populate('userId');
 
-  return getAll;
+    return getAll;
+  } else {
+    throw new ApiError(401, 'You are not authorized to do that');
+  }
 };

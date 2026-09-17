@@ -11,11 +11,11 @@ export const requirePermission = (permission: string) => {
     if (!userId) throw new ApiError(401, 'Unauthorized MD');
     if (!orgId) throw new ApiError(400, 'Organization ID is required');
 
-    const isMember = await OrganizationMember.findOne({ userId, organizationId: orgId }).select(
+    const isMember = await OrganizationMember.findOne({ userId, organizationId: orgId,isDeleted:false }).select(
       'role',
     );
 
-    if (!isMember) throw new ApiError(403, 'Not a member of any organization');
+    if (!isMember) throw new ApiError(403, 'Not a member of organization');
 
     const role = isMember.role;
 

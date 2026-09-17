@@ -1,6 +1,10 @@
 import { organizationMemberInputDto } from '../dto/requests/organizationMember.dto.js';
 import OrganizationMember from '../models/organizationMember.model.js';
-import { addOrganiztionMemberService, deleteOrganizationMemberService } from '../services/organizationMember.service.js';
+import {
+  addOrganiztionMemberService,
+  deleteOrganizationMemberService,
+  getOrganizationMemberService,
+} from '../services/organizationMember.service.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -23,13 +27,32 @@ export const addOrganiztionMemberController = asyncHandler(async (req, res) => {
 });
 
 export const deleteOrganizationMemberController = asyncHandler(async (req, res) => {
-const userId = req.user?._id;
-const email = req.body
+  const userId = req.user?._id;
+  const email = req.body;
 
-if(!userId) throw new ApiError(401, "Unauthorized user")
+  if (!userId) throw new ApiError(401, 'Unauthorized user');
 
-  const user = await deleteOrganizationMemberService(userId, email);
+  await deleteOrganizationMemberService(userId, email);
 
-  return res.status(201).json({user})
+  return res.status(201).json(new ApiResponse('User deleted sucessfully'));
+});
+
+export const updateOrganizationMemberController = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+  const email = req.body;
+
+  if (!userId) throw new ApiError(401, 'Unauthorized user');
+
   
 });
+
+export const getOrganizationMemberController = asyncHandler(async(req, res)=>{
+  const userId = req.user?._id;
+  const { orgId } = req.params;
+
+  if (!userId) throw new ApiError(401, 'Unauthorized user');
+
+  const response = await getOrganizationMemberService(userId, orgId.toString())
+
+  return res.status(200).json(new ApiResponse("Data found", response))
+})

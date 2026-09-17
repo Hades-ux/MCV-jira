@@ -83,7 +83,7 @@ export const updateOrganizationService = async (
   if (!orgId) throw new ApiError(400, 'Organization id not found');
 
   const isMember = await OrganizationMember.findOne({
-    _id: userId,
+    userId,
     organizationId: orgId,
     isDeleted: false,
   });

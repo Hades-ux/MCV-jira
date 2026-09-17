@@ -2,6 +2,7 @@ import { RoleTypes } from '../models/organizationMember.model.js';
 
 export const rolePermission: Record<RoleTypes, string[]> = {
   [RoleTypes.owner]: [
+    'member:getAll',
     'member:create',
     'member:update',
     'member:delete',
