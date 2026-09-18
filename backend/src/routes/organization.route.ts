@@ -24,7 +24,7 @@ router.post(
 );
 
 router.patch(
-  '/update-organization',
+  '/update-organization/:orgId',
   jwtMiddleware,
   requirePermission('organization:update'),
   upload.single('logo'),
