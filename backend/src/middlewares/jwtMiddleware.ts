@@ -2,26 +2,49 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 import ApiError from '../utils/ApiError.js';
 
+interface AccessTokenPayload extends JwtPayload {
+  _id: string;
+}
+
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: AccessTokenPayload;
     }
   }
 }
 
- export const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const jwtMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const token = req.cookies.accessToken;
+    const token = req.cookies?.accessToken;
 
-    if (!token) throw new ApiError(401, 'Unauthorized Access');
+    if (!token) {
+      throw new ApiError(401, 'Unauthorized');
+    }
 
-    const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload;
+    const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 
-    req.user = decode;
+    if (!accessTokenSecret) {
+      throw new Error('ACCESS_TOKEN_SECRET is not configured');
+    }
+
+    const decoded = jwt.verify(
+      token,
+      accessTokenSecret,
+    ) as AccessTokenPayload;
+
+    if (!decoded._id) {
+      throw new ApiError(401, 'Invalid token payload');
+    }
+
+    req.user = decoded;
 
     next();
-  } catch (error) {
-    throw new ApiError(401, 'Invalid or expired token');
+  } catch {
+    throw new ApiError(401, 'Unauthorized');
   }
 };

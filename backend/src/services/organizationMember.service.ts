@@ -3,7 +3,6 @@ import { organizationMemberInputDto } from '../dto/requests/organizationMember.d
 import OrganizationMember, { RoleTypes } from '../models/organizationMember.model.js';
 import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
-import { error } from 'node:console';
 
 // Add member
 export const addOrganiztionMemberService = async (
@@ -111,31 +110,47 @@ export const deleteOrganizationMemberService = async (
   await targetUserMembership.save();
 };
 
-
 // Update member role
-export const updateOrganizationMemberRole = async () => {};
-// List organization members
+export const updateOrganizationMemberRoleService = async (
+  currentUserId: string,
+  email: string,
+  orgId: Types.ObjectId,
+  role: RoleTypes,
+): Promise<void> => {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) throw new ApiError(400, 'Email is required');
+  if (!role) throw new ApiError(400, 'Role is required');
 
-export const getOrganizationMemberService = async (userId: string, orgId: string) => {
-  if (!userId) throw new ApiError(401, 'Unauthorized user');
+  //check target user
+  const targetUser = await User.exists({ email: normalizedEmail });
+  if (!targetUser) throw new ApiError(404, 'User not found');
 
-  const currentUser = await User.findOne({ userId: userId }).select('-password');
-  if (!currentUser) throw new ApiError(404, 'User not found');
-
-  const isMember = await OrganizationMember.findOne({
-    userId,
-    isDeleted: false,
-    organizationId: orgId,
-  });
-  if (!isMember) throw new ApiError(401, 'Not a member');
-
-  if (isMember?.role === RoleTypes.owner) {
-    const getAll = await OrganizationMember.find({
-      organizationId: isMember?.organizationId,
-    }).populate('userId');
-
-    return getAll;
-  } else {
-    throw new ApiError(401, 'You are not authorized to do that');
+  if (targetUser._id.toString() === currentUserId) {
+    throw new ApiError(400, 'You cannot update own role');
   }
+
+  const targetUserMembership = await OrganizationMember.findOne({
+    userId: targetUser._id,
+    organizationId: orgId,
+    isDeleted: false,
+  });
+
+  if (!targetUserMembership) throw new ApiError(404, 'User is not a member of this organization');
+
+  if (targetUserMembership.role === role)
+    throw new ApiError(409, `Member already has the requested role: ${role}`);
+
+  targetUserMembership.role = role;
+  await targetUserMembership.save({ validateBeforeSave: true });
+};
+
+// List organization members
+export const getOrganizationMemberService = async (orgId: Types.ObjectId) => {
+
+    const members = await OrganizationMember.find({
+      organizationId: orgId,
+      isDeleted:false
+    }).populate('userId', 'email').select('-updatedAt -createdAt -__v').lean();
+
+    return members;
 };

@@ -5,6 +5,7 @@ import {
   addOrganiztionMemberController,
   deleteOrganizationMemberController,
   getOrganizationMemberController,
+  updateOrganizationMemberController,
 } from '../controllers/organiztionMember.controller.js';
 import { organizationMemberValidation } from '../validations/organizationMember.validation.js';
 import { requirePermission } from '../middlewares/authorization.middleware.js';
@@ -36,5 +37,7 @@ router.get(
   requirePermission('member:getAll'),
   getOrganizationMemberController,
 );
+
+router.patch('/update-member/:orgId',jwtMiddleware,requirePermission('member:update'),updateOrganizationMemberController)
 
 export default router;
